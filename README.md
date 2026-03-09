@@ -18,7 +18,6 @@ An intelligent, RAG-powered career roadmapping system that goes beyond generic a
 | &emsp;[Module 5 — Data Pipeline](#module-5--data-pipeline) | Knowledge base and scraping |
 | [How the Modules Work Together](#how-the-modules-work-together) | Combined pipeline flow |
 | [Tech Stack](#tech-stack) | Technologies and tools used |
-| [Team](#team) | Roles and responsibilities |
 | [Data Layer](#data-layer) | Knowledge base statistics |
 | [API Contracts](#api-contracts) | Endpoint definitions |
 | [Deployment](#deployment) | Infrastructure overview |
@@ -259,21 +258,6 @@ Frontend renders:
 
 **Total infrastructure cost: ₹0**
 
----
-
-## Team
-
-| Member | Role | Owns |
-|--------|------|------|
-| Sanat | Frontend Engineer | Next.js UI, all 4 pages, React Flow, Recharts |
-| Nikhil | Backend Engineer | Node.js + Express, Supabase schema, Redis, Auth |
-| Sachi | AI / RAG Engineer | FastAPI, ChromaDB, sentence-transformers, Groq |
-| Ragini | Data Engineer | Knowledge base, O\*NET/BLS/Kaggle, Crawl4AI, synthetic profiles |
-| Shakti | DevOps / Integration | Vercel, Render, HuggingFace Spaces, Docker, GitHub Actions |
-
-**Institution:** VIT Pune — CSE (AI & ML), Batch 2028
-
----
 
 ## Data Layer
 
