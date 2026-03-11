@@ -13,7 +13,7 @@ from models import (
 )
 from rag.embedder import get_model, get_collection, add_documents, get_doc_count
 from rag.retriever import retrieve_career_docs
-from rag.generator import generate_roadmap, generate_audit, is_groq_available
+from rag.generator import generate_roadmap, generate_audit, is_groq_available, get_fallback_roadmap, get_fallback_audit
 from rag.cache import get_cached_response, set_cached_response, is_connected as redis_connected
 
 settings = get_settings()
@@ -108,10 +108,18 @@ async def rag_generate(request: RagGenerateRequest):
     roadmap_json = generate_roadmap(profile_dict, retrieved_docs)
 
     if not roadmap_json:
-        raise HTTPException(
-            status_code=502,
-            detail="LLM failed to generate roadmap after all retries. Try again later."
+        print("WARNING: Groq failed. Using fallback demo response.")
+        roadmap_json = get_fallback_roadmap()
+        audit_scores_raw = get_fallback_audit()
+        # Skip the audit generation call since we have fallback
+        response_dict = _build_response(
+            profile_dict=profile_dict,
+            roadmap_json=roadmap_json,
+            audit_scores_raw=audit_scores_raw,
+            retrieved_doc_ids=retrieved_doc_ids,
         )
+        response_dict["model_used"] = "fallback-demo"
+        return RagGenerateResponse(**response_dict)
 
     # ── Step 4: Generate ethical audit ──
     audit_scores_raw = generate_audit(profile_dict, roadmap_json)
