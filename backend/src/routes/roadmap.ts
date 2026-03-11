@@ -4,7 +4,7 @@ import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { RoadmapRequestSchema } from '../schemas';
 import { cacheGet, cacheSet, profileCacheKey } from '../lib/redis';
-import { callRagGenerate } from '../lib/ragClient';
+import { callRagGenerate, AuditScore } from '../lib/ragClient';
 
 const router = Router();
 router.use(requireAuth);
@@ -64,20 +64,20 @@ router.post('/generate', async (req: Request, res: Response) => {
     data: {
       userId,
       profileId,
-      roadmapData: ragResponse.roadmap as object,
-      auditScores: ragResponse.auditScores as object,
-      probability: ragResponse.roadmap.probability,
+      roadmapData: ragResponse as object,
+      auditScores: ragResponse.audit_scores as object,
+      probability: ragResponse.success_probability,
     },
   });
 
   // Save individual audit results for analytics
-  if (ragResponse.auditScores?.length) {
+  if (ragResponse.audit_scores?.length) {
     await prisma.auditResult.createMany({
-      data: ragResponse.auditScores.map((score) => ({
+      data: ragResponse.audit_scores.map((score: AuditScore) => ({
         roadmapId: roadmap.id,
         dimension: score.dimension,
         score: score.score,
-        risk: score.risk,
+        risk: score.risk_level,
         explanation: score.explanation,
       })),
     });
@@ -86,9 +86,9 @@ router.post('/generate', async (req: Request, res: Response) => {
   // ── Cache the result ─────────────────────────────────────────────────────────
   const responseData = {
     roadmapId: roadmap.id,
-    roadmap: ragResponse.roadmap,
-    auditScores: ragResponse.auditScores,
-    probability: ragResponse.roadmap.probability,
+    roadmap: ragResponse,
+    auditScores: ragResponse.audit_scores,
+    probability: ragResponse.success_probability,
     fromCache: false,
   };
   await cacheSet(cacheKey, responseData);
