@@ -25,14 +25,18 @@ Person 3 already built the **RAG Service** with a `Dockerfile` exposed on port `
 8. `git add .`, `git commit -m "Deploy RAG"`, and `git push`.
 9. The Space will build the Docker container and start your FastAPI server. The public URL will be `https://[your-username]-career-path-generator-rag.hf.space`.
 
-## 3. Deploying the Backend on Render
-The `render.yaml` file acts as an infrastructure-as-code blueprint.
-1. Go to your [Render Dashboard](https://dashboard.render.com).
-2. Click **"New +"** and select **"Blueprint"** (Not "Web Service").
-3. Connect your GitHub repository containing the Code.
-4. Render will read the `render.yaml` file automatically to provision the service named *career-path-backend*.
-5. On the Render Dashboard, go to your new service $\rightarrow$ **Environment**, and manually populate the "Sync: False" environment variables from `.env`. (e.g. `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL`, `FRONTEND_URL`).
-   - **Important**: Make sure `RAG_SERVICE_URL` points to the Hugging Face URL you generated in Step 2.
+## 3. Deploying the Backend on Vercel (Free)
+We configured Vercel Serverless Functions for the backend, meaning you do not need to use Render or provide a credit card.
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard).
+2. Click **"Add New..."** $\rightarrow$ **"Project"** and connect your GitHub repository.
+3. **CRITICAL STEP**: Under **"Root Directory"**, click **"Edit"** and select the `/backend` folder.
+4. Under **"Environment Variables"**, manually populate the environment variables from your `.env`:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `REDIS_URL`
+   - `RAG_SERVICE_URL` (Make sure this points to the Hugging Face URL you generated in Step 2!)
+5. Click **Deploy**. Vercel will build the Prisma client and deploy your Express backend for free.
+6. Once deployed, note down the URL Vercel gives you (e.g., `https://career-path-backend.vercel.app`).
 
 ## 4. Testing with Postman
 I have created `postman_collection.json`. Here is how you use it to test everything:
@@ -41,17 +45,16 @@ I have created `postman_collection.json`. Here is how you use it to test everyth
 3. Select the `postman_collection.json` file from your Desktop.
 4. Open the newly imported folder "Career Path Generator".
 5. In Postman, go to **Variables** on the left or top right for this collection.
-6. Make sure `api_url` is set to `http://localhost:4000` (or your Render URL once deployed).
+6. Make sure `api_url` is set to `http://localhost:4000` (or your new Vercel backend URL).
 7. Run the requests in order (1 $\rightarrow$ 5).
 8. *Note*: After you run **"2. Auth - Login"**, you need to copy the `token` from the response and paste it into the `jwt_token` variable in Postman to unlock the profile and roadmap endpoints.
 
 ## 5. Deploying the Frontend on Vercel
 Now that Person 1 has pushed the `career-path-gen` Next.js frontend, you can deploy it:
-1. Go to your [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New..."** $\rightarrow$ **"Project"**.
+1. Go to your Vercel Dashboard and click **"Add New..."** $\rightarrow$ **"Project"**.
 2. Connect your GitHub repository.
-3. Under **"Framework Preset"**, ensure **Next.js** is selected.
-4. Under **"Root Directory"**, click **"Edit"** and select the `/career-path-gen` folder.
-5. Under **"Environment Variables"**, add the variable from your `.env.example`:
-   - `NEXT_PUBLIC_API_URL` = `[your Render backend URL]` *(e.g. `https://career-path-backend.onrender.com`)*
-6. Click **Deploy**. Vercel will automatically run `npm run build` inside that directory.
-7. Once deployed, test the live URL to ensure it successfully communicates with your Render Backend, which talks to your Hugging Face RAG service.
+3. Under **"Root Directory"**, click **"Edit"** and select the `/career-path-gen` folder.
+4. Under **"Environment Variables"**, add:
+   - `NEXT_PUBLIC_API_URL` = `[your Vercel BACKEND URL from Step 3]`
+5. Click **Deploy**. Vercel will automatically run `npm run build` inside that directory.
+6. *Important*: Once the frontend finishes deploying, go back to your Backend Vercel project $\rightarrow$ Settings $\rightarrow$ Environment Variables $\rightarrow$ Add `FRONTEND_URL` and set it to your Frontend's live URL. This ensures CORS allows communication!

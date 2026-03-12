@@ -101,28 +101,36 @@ app.use((req, res) => {
 app.use(zodErrorHandler);
 app.use(globalErrorHandler);
 
-// ─── Start Server ─────────────────────────────────────────────────────────────
-async function bootstrap() {
-  try {
-    // Verify DB connection
-    await prisma.$connect();
-    console.log('✅ PostgreSQL (Supabase) connected');
+// ─── Start Server / Export App ────────────────────────────────────────────────
+if (process.env.VERCEL) {
+  // If running on Vercel, don't bootstrap the server listener.
+  // We just export the app for the serverless function.
+  console.log('Running in Vercel Serverless environment.');
+} else {
+  async function bootstrap() {
+    try {
+      // Verify DB connection
+      await prisma.$connect();
+      console.log('✅ PostgreSQL (Supabase) connected');
 
-    // Warm up Redis
-    getRedis();
+      // Warm up Redis
+      getRedis();
 
-    app.listen(PORT, () => {
-      console.log(`\n🚀 Career Path Backend running at http://localhost:${PORT}`);
-      console.log(`   Environment: ${process.env.NODE_ENV ?? 'development'}`);
-      console.log(`   Health check: http://localhost:${PORT}/health\n`);
-    });
-  } catch (err) {
-    console.error('❌ Failed to start server:', err);
-    process.exit(1);
+      app.listen(PORT, () => {
+        console.log(`\n🚀 Career Path Backend running at http://localhost:${PORT}`);
+        console.log(`   Environment: ${process.env.NODE_ENV ?? 'development'}`);
+        console.log(`   Health check: http://localhost:${PORT}/health\n`);
+      });
+    } catch (err) {
+      console.error('❌ Failed to start server:', err);
+      process.exit(1);
+    }
   }
+
+  bootstrap();
 }
 
-bootstrap();
+export default app;
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
