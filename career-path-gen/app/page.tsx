@@ -37,7 +37,7 @@ export default function Home() {
             <Compass className="w-4 h-4" /> Next-generation Career Navigation
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-serif font-bold leading-tight mb-8">
+          <h1 className="text-5xl md:text-7xl font-serif font-bold leading-tight mb-8 text-white">
             Your Future,<br/>
             Engineered by <span className="text-[var(--accent)]">Intelligence</span>
           </h1>
