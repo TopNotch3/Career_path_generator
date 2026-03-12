@@ -17,7 +17,11 @@ Person 3 already built the **RAG Service** with a `Dockerfile` exposed on port `
    - `GROQ_API_KEY` = `[your key]`
    - *(No need to set PORT or HOST, HF Docker Spaces figure this out automatically, but HF maps internal port `7860` by default. Change the end of your Dockerfile to `CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]` right before deploying, or set the `PORT` env var in HF settings to 8000).*
 6. Clone the HF Space repository.
-7. Copy the contents of the `/rag-service` (or root where `main.py` and `Dockerfile` are) into the HF Space repository.
+7. Copy the following files and folders from your root directory into the HF Space repository:
+   - `main.py`, `models.py`, `config.py`, `requirements.txt`, `Dockerfile`
+   - **`rag/`** (Crucial: contains the RAG engine logic)
+   - `prompts/`
+   - `chroma_data/` (Optional but highly recommended so it doesn't re-embed from scratch)
 8. `git add .`, `git commit -m "Deploy RAG"`, and `git push`.
 9. The Space will build the Docker container and start your FastAPI server. The public URL will be `https://[your-username]-career-path-generator-rag.hf.space`.
 
